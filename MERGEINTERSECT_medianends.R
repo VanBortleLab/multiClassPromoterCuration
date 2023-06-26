@@ -1,15 +1,17 @@
 ## This file will: Merge the intervals and collapse all the information into ./masterfiles/*_final.bed 
-setwd("/Users/rkc/Downloads/FLOW/MAKEMASTER_new")
+setwd("/Users/rkc/Downloads/FLOW/GIT/curateRNAcentral")
 
 require(dplyr)
 #########################################OUTPUT FOLDER !!Caution::It deletes existing folders too
 system("rm -r mfinal.bed pfinal.bed cat.bed merged.bed sorted.bed intersected.bed")
 system("rm -r masterfiles_final_medianends")
 system("mkdir masterfiles_final_medianends")  
-#########################################EXECUTING MASTERFILES IN LOOP
+
+######################################### COLLAPSING TSS within 120 nt range
+####+ve and -ve strand collapsed separately
 for(i in list.files("./masterfiles_new/",full.names = TRUE,pattern = "*masterfile.bed"))
 {
-  i="./masterfiles_new//rRNA_masterfile.bed"
+  #i="./masterfiles_new//rRNA_masterfile.bed"
   print(i)
   x=read.table(file=i,sep='\t',header=TRUE,quote="")
   if(nrow(x)<10) next
@@ -73,10 +75,10 @@ for(i in list.files("./masterfiles_new/",full.names = TRUE,pattern = "*masterfil
   write.table(sorted,paste0("./masterfiles_final_medianends/",substring(i,20,nchar(i)-4),"_final.bed"),sep="\t",row.names=FALSE,col.names=TRUE,quote=FALSE)
   system("rm -r mfinal.bed pfinal.bed cat.bed merged.bed sorted.bed intersected.bed") #######removing intermediate files
   
-}
+}##luka##
 
 
-
+#########COLLAPSING all databse info into single column i.e. TOTAL_INFO
 ####!!!If you have STOP_median included in the table above, then you may have to make some changes below while selecting columns to collapse.
 FLAG=0
 for (i in list.files("./masterfiles_final_medianends/",full.names = T))
@@ -84,16 +86,18 @@ for (i in list.files("./masterfiles_final_medianends/",full.names = T))
   #i="./masterfiles_final_medianends//snRNA_masterfile_final.bed" 
   print(i)
   t=fread(i,sep="\t")
-  t= t  %>% rowwise() %>% transmute(across(Chr:RNA_type),TOTAL_INFO=paste(c_across(9:ncol(t)),collapse="%"))
-  if(FLAG==0) {TOTAL=tt} else
+  t= t  %>% rowwise() %>% transmute(across(Chr:RNA_type),TOTAL_INFO=paste(c_across(9:ncol(t)),collapse="%")). ##manually specify what are the columns to collapse together to form TOTAL_INFO
+  
+  if(FLAG==0) {TOTAL=t} else
   {
     TOTAL=rbind(TOTAL,t)
   }
   FLAG=FLAG+1
-}
+}##luka##
 
-TOTAL$TSS_median=as.integer(TOTAL$TSS_median) #### some medinas are in points thus, making them integer
 
+##########WRITING files
+TOTAL$TSS_median=as.integer(TOTAL$TSS_median) #### some medians are in points thus, making them integer
 write.table(TOTAL,"./masterfiles_final_medianends/TOTAL_rnacentral_raw.bed",sep="\t",
             append=F,quote=F,row.names = F,col.names = T)
 TOTAL2=TOTAL[grepl("[a-zA-Z]",TOTAL$TOTAL_INFO),]   #####removing those entries that doesnt have any information in any database, thus their total info is simply %%%%%%% .
