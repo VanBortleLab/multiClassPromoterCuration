@@ -1,5 +1,7 @@
-# curateRNAcentral
-curating the RNAcentral data into different ncRNA subtypes
 
-This code makes a separate bed file for each ncRNA subtypes , with information across the databases
-<img width="1317" alt="Screen Shot 2023-06-27 at 3 00 33 PM" src="https://github.com/VanBortleLab/curateRNAcentral/assets/130776338/860d05d1-71ea-476a-905e-a20a93d43eed">
+ # <img src="man/figures/logo_header.png" width="1200px">
+
+## Overview
+
+**MultiClassPromoterCuration** is a series of R scripts that integrates disparate coding and noncoding annotations to define promoter regions for holistic studies of RNA polymerase I, II, and III. Briefly, related transcript start sites (TSS) are clustered and a promoter window is uniformly defined as 200 bp (position -150 to position +50 centered on a median cluster TSS). Promoters are defined individually for RNA subtypes and compiled into a master promoter file.
+
